@@ -34,7 +34,21 @@ func main() {
  log.Printf("hello world")
 
  ve := wt.Validate()
- fmt.Println(ve.Errors())
+ // No errors should be reported
+ fmt.Println("Wt 1:", ve.Errors())
+
+ wt.Reset()
+
+ wt.Expect("Match server started", wtester.StringMatch("server started\n", true)).WithMax(1).WithMin(1)
+ wt.Expect("Valid UTF-8", wtester.ValidUTF8()).Every()
+
+ log.SetOutput(wt)
+
+ log.Printf("hello world")
+
+ ve = wt.Validate()
+ // One error should be reported
+ fmt.Println("Wt 2:", ve.Errors())
 }
 ```
 
