@@ -85,9 +85,9 @@ func TestWTester_ExpectWithLogger(t *testing.T) {
 	log.Printf("hello world")
 	log.Printf("error in server")
 
-	ve := wt.Validate()
-	if len(ve.errs) != 0 {
-		t.Fatalf("expected no validation errors, got %d\nErrors: %s", len(ve.errs), ve.Errors())
+	err := wt.Validate()
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
 	}
 }
 
@@ -110,18 +110,23 @@ func TestWTester_ExpectMax(t *testing.T) {
 	wt.Write([]byte("julian776"))
 	wt.Write([]byte("julian776"))
 
-	ve := wt.Validate()
-	if len(ve.errs) == 0 {
-		t.Fatalf("expected validation errors, got none")
-	}
+	err := wt.Validate()
+	if err != nil {
+		ve, ok := err.(ValidationErrors)
+		if !ok {
+			t.Fatalf("expected ValidationErrors, got %T", err)
+		}
 
-	valErr := ve.errs[0]
-	if valErr.Title != "Match bytes" {
-		t.Fatalf("expected title 'Match bytes', got %q", valErr.Title)
-	}
+		valErr := ve.Errs[0]
+		if valErr.Title != "Match bytes" {
+			t.Fatalf("expected title 'Match bytes', got %q", valErr.Title)
+		}
 
-	err := valErr.Errors[0]
-	if err.Err.Error() != "expected at most 3 matches, got 4" {
-		t.Fatalf("expected error 'expected at most 3 matches, got 4', got %q", err.Err.Error())
+		err = valErr.Errors[0]
+		if err.Error() != "expected at most 3 matches, got 4\n" {
+			t.Fatalf("expected error 'expected at most 3 matches, got 4\n', got %q", err.Error())
+		}
+	} else {
+		t.Fatalf("expected error, got nil")
 	}
 }

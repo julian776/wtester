@@ -68,7 +68,7 @@ func (l *WTester) Reset() {
 	l.errors = make(map[string]*ValidationError)
 }
 
-func (l *WTester) Validate() ValidationErrors {
+func (l *WTester) Validate() error {
 	for _, e := range l.expects {
 		if e.min > 0 && e.matches < e.min {
 			l.appendError(e.title, ErrorRecord{
@@ -85,7 +85,11 @@ func (l *WTester) Validate() ValidationErrors {
 
 	ve := ValidationErrors{}
 	for _, e := range l.errors {
-		ve.errs = append(ve.errs, *e)
+		ve.Errs = append(ve.Errs, *e)
+	}
+
+	if ve.IsEmpty() {
+		return nil
 	}
 
 	return ve
