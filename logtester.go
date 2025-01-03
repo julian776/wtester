@@ -10,7 +10,7 @@ type WTester struct {
 	w       io.Writer
 	muW     sync.Mutex // guards w
 	expects map[string]*Expect
-	errors  map[string]*ValidationError
+	errors  map[string]*ExpectError
 	muErr   sync.Mutex
 }
 
@@ -18,7 +18,7 @@ func NewWTester(w io.Writer) *WTester {
 	return &WTester{
 		w:       w,
 		expects: make(map[string]*Expect),
-		errors:  make(map[string]*ValidationError),
+		errors:  make(map[string]*ExpectError),
 	}
 }
 
@@ -65,7 +65,7 @@ func (l *WTester) Reset() {
 	defer l.muErr.Unlock()
 
 	l.expects = make(map[string]*Expect)
-	l.errors = make(map[string]*ValidationError)
+	l.errors = make(map[string]*ExpectError)
 }
 
 func (l *WTester) Validate() error {
@@ -100,7 +100,7 @@ func (l *WTester) appendError(title string, e ErrorRecord) {
 	defer l.muErr.Unlock()
 
 	if l.errors[title] == nil {
-		l.errors[title] = &ValidationError{
+		l.errors[title] = &ExpectError{
 			Title: title,
 		}
 	}

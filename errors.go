@@ -6,7 +6,7 @@ import "fmt"
 // ValidationError structs. This is used to build a
 // custom error message.
 type ValidationErrors struct {
-	Errs []ValidationError
+	Errs []ExpectError
 }
 
 func (v ValidationErrors) Error() string {
@@ -24,15 +24,15 @@ func (v *ValidationErrors) IsEmpty() bool {
 	return len(v.Errs) == 0
 }
 
-// ValidationError is a struct that holds the title of
+// ExpectError is a struct that holds the title of
 // the validation and a list of ErrorRecords that you
 // can use to build a custom error message.
-type ValidationError struct {
+type ExpectError struct {
 	Title  string
 	Errors []ErrorRecord
 }
 
-func (v ValidationError) Error() string {
+func (v ExpectError) Error() string {
 	errs := ""
 	for _, e := range v.Errors {
 		if len(e.Bytes) != 0 {
