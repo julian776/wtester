@@ -97,6 +97,7 @@ func TestWTester_ExpectMax(t *testing.T) {
 
 	wt.Expect("Match str", StringMatch("hi there", false)) // Allow many matches
 	wt.Expect("Match bytes", BytesMatch([]byte("julian776"))).WithMax(3)
+	wt.Expect("Must not match", StringMatch("hello", true)).WithMax(0)
 	wt.Expect("everything utf8", ValidUTF8()).Every()
 
 	wt.Write([]byte("hi there"))
@@ -109,6 +110,8 @@ func TestWTester_ExpectMax(t *testing.T) {
 	wt.Write([]byte("julian776"))
 	wt.Write([]byte("julian776"))
 	wt.Write([]byte("julian776"))
+
+	wt.Write([]byte("hello"))
 
 	err := wt.Validate()
 	if err != nil {
@@ -125,6 +128,16 @@ func TestWTester_ExpectMax(t *testing.T) {
 		err = valErr.Errors[0]
 		if err.Error() != "expected at most 3 matches, got 4\n" {
 			t.Fatalf("expected error 'expected at most 3 matches, got 4\n', got %q", err.Error())
+		}
+
+		valErr1 := ve.Errs[1]
+		if valErr1.Title != "Must not match" {
+			t.Fatalf("expected title 'Must not match', got %q", valErr1.Title)
+		}
+
+		err = valErr1.Errors[0]
+		if err.Error() != "expected at most 0 matches, got 1\n" {
+			t.Fatalf("expected error 'expected at most 0 matches, got 1\n', got %q", err.Error())
 		}
 	} else {
 		t.Fatalf("expected error, got nil")

@@ -70,13 +70,12 @@ func (l *WTester) Reset() {
 
 func (l *WTester) Validate() error {
 	for _, e := range l.expects {
-		if e.min > 0 && e.matches < e.min {
+		switch {
+		case e.min > 0 && e.matches < e.min:
 			l.appendError(e.title, ErrorRecord{
 				Err: fmt.Errorf("expected at least %d matches, got %d", e.min, e.matches),
 			})
-		}
-
-		if e.max > 0 && e.matches > e.max {
+		case (e.max > 0 || e.noMatch) && e.matches > e.max:
 			l.appendError(e.title, ErrorRecord{
 				Err: fmt.Errorf("expected at most %d matches, got %d", e.max, e.matches),
 			})
