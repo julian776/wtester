@@ -16,39 +16,50 @@ go get github.com/julian776/wtester
 package main
 
 import (
- "fmt"
- "io"
- "log"
+    "fmt"
+    "io"
+    "log"
 
- "github.com/julian776/wtester"
+    "github.com/julian776/wtester"
 )
 
 func main() {
- wt := wtester.NewWTester(io.Discard)
+    wt := wtester.NewWTester(io.Discard)
 
- wt.Expect("Match hello world", wtester.RegexMatch(`hello world`)).WithMax(1).WithMin(1)
- wt.Expect("Valid UTF-8", wtester.ValidUTF8()).Every()
+    wt.Expect("Match hello world", wtester.RegexMatch(`hello world`)).WithMax(1).WithMin(1)
+    wt.Expect("Valid UTF-8", wtester.ValidUTF8()).Every()
 
- log.SetOutput(wt)
+    log.SetOutput(wt)
 
- log.Printf("hello world")
+    log.Printf("hello world")
 
- ve := wt.Validate()
- // No errors should be reported
- fmt.Println("Wt 1:", ve.Errors())
+    err := wt.Validate()
+    if err != nil {
+        // No errors should be reported
+        fmt.Println("Wt 1:", err)
+    }
 
- wt.Reset()
+    wt.Reset()
 
- wt.Expect("Match server started", wtester.StringMatch("server started\n", true)).WithMax(1).WithMin(1)
- wt.Expect("Valid UTF-8", wtester.ValidUTF8()).Every()
+    wt.Expect("Match server started", wtester.StringMatch("server started\n", true)).WithMax(1).WithMin(1)
+    wt.Expect("Valid UTF-8", wtester.ValidUTF8()).Every()
 
- log.SetOutput(wt)
+    log.SetOutput(wt)
 
- log.Printf("hello world")
+    log.Printf("hello world")
 
- ve = wt.Validate()
- // One error should be reported
- fmt.Println("Wt 2:", ve.Errors())
+    err = wt.Validate()
+    if err != nil {
+        // Demonstrating type assertion
+        ve, ok := err.(wtester.ValidationErrors)
+        if !ok {
+            fmt.Printf("Error is not of type ValidationError: %T\n", err)
+            return
+        }
+
+        // One error should be reported
+        fmt.Println("Wt 2:", ve.Error())
+    }
 }
 ```
 
