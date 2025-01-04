@@ -14,6 +14,8 @@ const (
 )
 
 func TestWTester_Write(t *testing.T) {
+	t.Parallel()
+
 	buf := new(bytes.Buffer)
 	wt := NewWTester(buf)
 
@@ -45,6 +47,8 @@ func TestWTester_Write(t *testing.T) {
 }
 
 func TestWTester_Close(t *testing.T) {
+	t.Parallel()
+
 	// Close writer without implementing io.Closer
 	var buf bytes.Buffer
 	wt := NewWTester(&buf)
@@ -73,6 +77,8 @@ func TestWTester_Close(t *testing.T) {
 }
 
 func TestWTester_ExpectWithLogger(t *testing.T) {
+	t.Parallel()
+
 	wt := NewWTester(io.Discard)
 
 	wt.Expect("Match hello world", RegexMatch(fmt.Sprintf("^%s hello world\n$", regexDate))).WithMax(1).WithMin(1)
@@ -92,6 +98,8 @@ func TestWTester_ExpectWithLogger(t *testing.T) {
 }
 
 func TestWTester_ExpectMax(t *testing.T) {
+	t.Parallel()
+
 	buf := new(bytes.Buffer)
 	wt := NewWTester(buf)
 
