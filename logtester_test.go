@@ -128,24 +128,33 @@ func TestWTester_ExpectMax(t *testing.T) {
 			t.Fatalf("expected ValidationErrors, got %T", err)
 		}
 
-		valErr := ve.Errs[0]
-		if valErr.Title != "Match bytes" {
-			t.Fatalf("expected title 'Match bytes', got %q", valErr.Title)
+		matchBytes := false
+		mustNotMatch := false
+		for _, e := range ve.Errs {
+			switch e.Title {
+			case "Match bytes":
+				matchBytes = true
+
+				err = e.Errors[0]
+				if err.Error() != "expected at most 3 matches, got 4\n" {
+					t.Fatalf("expected error 'expected at most 3 matches, got 4\n', got %q", err.Error())
+				}
+			case "Must not match":
+				mustNotMatch = true
+
+				err = e.Errors[0]
+				if err.Error() != "expected at most 0 matches, got 1\n" {
+					t.Fatalf("expected error 'expected at most 0 matches, got 1\n', got %q", err.Error())
+				}
+			}
 		}
 
-		err = valErr.Errors[0]
-		if err.Error() != "expected at most 3 matches, got 4\n" {
-			t.Fatalf("expected error 'expected at most 3 matches, got 4\n', got %q", err.Error())
+		if !matchBytes {
+			t.Fatalf("expected error for 'Match bytes'")
 		}
 
-		valErr1 := ve.Errs[1]
-		if valErr1.Title != "Must not match" {
-			t.Fatalf("expected title 'Must not match', got %q", valErr1.Title)
-		}
-
-		err = valErr1.Errors[0]
-		if err.Error() != "expected at most 0 matches, got 1\n" {
-			t.Fatalf("expected error 'expected at most 0 matches, got 1\n', got %q", err.Error())
+		if !mustNotMatch {
+			t.Fatalf("expected error for 'Must not match'")
 		}
 	} else {
 		t.Fatalf("expected error, got nil")
