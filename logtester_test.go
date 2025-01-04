@@ -13,7 +13,7 @@ const (
 	regexDate = "[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}"
 )
 
-func TestWTester_Write(t *testing.T) {
+func TestWTester_WritesToUnderlyingWriterAreValid(t *testing.T) {
 	t.Parallel()
 
 	buf := new(bytes.Buffer)
@@ -46,7 +46,7 @@ func TestWTester_Write(t *testing.T) {
 	}
 }
 
-func TestWTester_Close(t *testing.T) {
+func TestWTester_Close_ClosesUnderlyingWriter(t *testing.T) {
 	t.Parallel()
 
 	// Close writer without implementing io.Closer
@@ -76,7 +76,7 @@ func TestWTester_Close(t *testing.T) {
 	}
 }
 
-func TestWTester_ExpectWithLogger(t *testing.T) {
+func TestWTester_ExpectNoErrorsWithLoggerAndValidLogs(t *testing.T) {
 	t.Parallel()
 
 	wt := NewWTester(io.Discard)
@@ -97,7 +97,7 @@ func TestWTester_ExpectWithLogger(t *testing.T) {
 	}
 }
 
-func TestWTester_ExpectMax(t *testing.T) {
+func TestWTester_ValidateMaxExpectationsAreReported(t *testing.T) {
 	t.Parallel()
 
 	buf := new(bytes.Buffer)
