@@ -13,6 +13,50 @@ const (
 	regexDate = "[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}"
 )
 
+func ExampleWTester() {
+	wt := NewWTester(io.Discard)
+
+	wt.Expect("Match hello world", RegexMatch(`hello world`)).WithMax(1).WithMin(1)
+	wt.Expect("Valid UTF-8", ValidUTF8()).Every()
+
+	log.SetOutput(wt)
+
+	log.Printf("hello world")
+
+	err := wt.Validate()
+	if err != nil {
+		// No errors should be reported
+		fmt.Println("Wt 1:", err)
+	}
+
+	wt.Reset()
+
+	wt.Expect("Match server started", StringMatch("server started\n", true)).WithMax(1).WithMin(1)
+	wt.Expect("Valid UTF-8", ValidUTF8()).Every()
+
+	log.SetOutput(wt)
+
+	log.Printf("hello world")
+
+	err = wt.Validate()
+	if err != nil {
+		// Demonstrating type assertion
+		ve, ok := err.(ValidationErrors)
+		if !ok {
+			fmt.Printf("Error is not of type ValidationError: %T\n", err)
+			return
+		}
+
+		// One error should be reported
+		fmt.Println("Wt 2:", ve.Error())
+	}
+
+	// Output:
+	// Wt 2: validation "Match server started"
+	// Fails On:
+	// expected at least 1 matches, got 0
+}
+
 func TestWTester_WritesToUnderlyingWriterAreValid(t *testing.T) {
 	t.Parallel()
 
