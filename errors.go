@@ -3,7 +3,7 @@ package wtester
 import "fmt"
 
 // ValidationErrors is a struct that holds a list of
-// ValidationError structs. This is used to build a
+// [ExpectError] structs. This is used to build a
 // custom error message.
 type ValidationErrors struct {
 	Errs []ExpectError
@@ -25,7 +25,7 @@ func (v *ValidationErrors) IsEmpty() bool {
 }
 
 // ExpectError is a struct that holds the title of
-// the validation and a list of ErrorRecords that you
+// the validation and a list of [ErrorRecords] that you
 // can use to build a custom error message.
 type ExpectError struct {
 	Title  string
@@ -46,6 +46,8 @@ func (v ExpectError) Error() string {
 	return fmt.Sprintf("validation \"%s\"\nFails On:\n%s", v.Title, errs)
 }
 
+// ErrorRecord is a struct that holds the bytes that
+// failed validation and the error that was returned.
 type ErrorRecord struct {
 	Bytes []byte
 	Err   error

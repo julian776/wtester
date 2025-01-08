@@ -27,7 +27,7 @@ func NewWTester(w io.Writer) *WTester {
 }
 
 // Write writes the provided byte slice to the underlying
-// io.Writer and checks if the byte slice matches any of
+// [io.Writer] and checks if the byte slice matches any of
 // the expectations set on the WTester.
 func (l *WTester) Write(p []byte) (n int, err error) {
 	for _, e := range l.expects {
