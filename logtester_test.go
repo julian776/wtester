@@ -13,7 +13,7 @@ const (
 	regexDate = "[0-9]{4}/[0-9]{2}/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}"
 )
 
-func ExampleWTester() {
+func Example() {
 	wt := NewWTester(io.Discard)
 
 	wt.Expect("Match hello world", RegexMatch(`hello world`)).WithMax(1).WithMin(1)
