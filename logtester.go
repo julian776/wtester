@@ -26,6 +26,21 @@ func NewWTester(w io.Writer) *WTester {
 	}
 }
 
+// AppendWriter appends an [io.Writer] to the WTester's
+// underlying writer. This allows for multiple writers to
+// be written to simultaneously.
+func (l *WTester) AppendWriter(w io.Writer) {
+	l.muW.Lock()
+	defer l.muW.Unlock()
+
+	if l.w == nil {
+		l.w = w
+		return
+	}
+
+	l.w = io.MultiWriter(l.w, w)
+}
+
 // Write writes the provided byte slice to the underlying
 // [io.Writer] and checks if the byte slice matches any of
 // the expectations set on the WTester.
