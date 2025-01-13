@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"os"
 	"testing"
 )
@@ -51,10 +52,32 @@ func Example() {
 		fmt.Println("Wt 2:", ve.Error())
 	}
 
+	// With Slog
+	wt.Reset()
+
+	reqId := "56de9ab2-bacd-4e24-a3c7-8221860d8edc"
+
+	wt.Expect("All logs contain req_id", RegexMatch(`"req_id":"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"`)).Every()
+	wt.Expect("Must not contain errors", StringMatch("error", false)).WithMax(0)
+
+	logger := slog.New(slog.NewJSONHandler(wt, nil))
+
+	logger.Info("handling parse document", "title", "test", "req_id", reqId)
+	logger.Error("failed to parse document", "error", "unexpected EOF", "req_id", reqId)
+
+	err = wt.Validate()
+	if err != nil {
+		// One error should be reported
+		fmt.Println("Wt 3:", err)
+	}
+
 	// Output:
 	// Wt 2: validation "Match server started"
 	// Fails On:
 	// expected at least 1 matches, got 0
+	// Wt 3: validation "Must not contain errors"
+	// Fails On:
+	// expected at most 0 matches, got 1
 }
 
 func TestWTester_WritesToUnderlyingWriterAreValid(t *testing.T) {
