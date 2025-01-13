@@ -41,7 +41,7 @@ func Example() {
 	err = wt.Validate()
 	if err != nil {
 		// Demonstrating type assertion
-		ve, ok := err.(ValidationErrors)
+		ve, ok := err.(*ValidationErrors)
 		if !ok {
 			fmt.Printf("Error is not of type ValidationError: %T\n", err)
 			return
@@ -167,7 +167,7 @@ func TestWTester_ValidateMaxExpectationsAreReported(t *testing.T) {
 
 	err := wt.Validate()
 	if err != nil {
-		ve, ok := err.(ValidationErrors)
+		ve, ok := err.(*ValidationErrors)
 		if !ok {
 			t.Fatalf("expected ValidationErrors, got %T", err)
 		}

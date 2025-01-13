@@ -100,6 +100,9 @@ func (l *WTester) Reset() {
 
 // Validate validates the expectations set on the WTester
 // and returns an error if any of the expectations are not met.
+// If there are no validation errors, nil is returned.
+// You must cast the err ve, ok := err.(*ValidationErrors) to access
+// the underlying validation errors.
 func (l *WTester) Validate() error {
 	for _, e := range l.expects {
 		switch {
@@ -114,7 +117,7 @@ func (l *WTester) Validate() error {
 		}
 	}
 
-	ve := ValidationErrors{}
+	ve := &ValidationErrors{}
 	for _, e := range l.errors {
 		ve.Errs = append(ve.Errs, *e)
 	}

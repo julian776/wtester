@@ -1,6 +1,9 @@
 package wtester
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // ValidationErrors is a struct that holds a list of
 // [ExpectError] structs. This is used to build a
@@ -9,13 +12,13 @@ type ValidationErrors struct {
 	Errs []ExpectError
 }
 
-func (v ValidationErrors) Error() string {
+func (v *ValidationErrors) Error() string {
 	var s string
 	for _, e := range v.Errs {
 		s += e.Error() + "\n"
 	}
 
-	return s
+	return strings.Trim(s, "\n")
 }
 
 // IsEmpty returns true if there are no validation errors.
