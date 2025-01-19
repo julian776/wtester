@@ -14,6 +14,11 @@ go get github.com/julian776/wtester
 
 Check the GoDoc for detailed usage instructions: [GoDoc](https://pkg.go.dev/github.com/julian776/wtester)
 
+## Customization
+
+The package is designed to be flexible and customizable. You can define your own expectations to suit your needs.
+Check the [expectations.go](expectations.go) file for some examples.
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
