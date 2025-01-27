@@ -71,3 +71,36 @@ func RunesMatch(expected []rune) ExpectFunc {
 		return slices.Equal(bytes.Runes(actual), expected)
 	}
 }
+
+// Not returns an ExpectFunc that negates the result of the provided ExpectFunc.
+func Not(expectFunc ExpectFunc) ExpectFunc {
+	return func(actual []byte) bool {
+		return !expectFunc(actual)
+	}
+}
+
+// AndMatch returns an ExpectFunc that checks if all provided ExpectFuncs return true.
+func AndMatch(expectFuncs ...ExpectFunc) ExpectFunc {
+	return func(actual []byte) bool {
+		for _, expectFunc := range expectFuncs {
+			if !expectFunc(actual) {
+				return false
+			}
+		}
+
+		return true
+	}
+}
+
+// OrMatch returns an ExpectFunc that checks if any of the provided ExpectFuncs return true.
+func OrMatch(expectFuncs ...ExpectFunc) ExpectFunc {
+	return func(actual []byte) bool {
+		for _, expectFunc := range expectFuncs {
+			if expectFunc(actual) {
+				return true
+			}
+		}
+
+		return false
+	}
+}
