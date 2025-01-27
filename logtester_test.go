@@ -164,7 +164,7 @@ func TestWTester_ExpectNoErrorsWithLoggerAndValidLogs(t *testing.T) {
 	}
 }
 
-func TestWTester_ValidateMaxExpectationsAreReported(t *testing.T) {
+func TestWTester_ValidateMinMaxExpectationsAreReported(t *testing.T) {
 	t.Parallel()
 
 	buf := new(bytes.Buffer)
@@ -173,6 +173,7 @@ func TestWTester_ValidateMaxExpectationsAreReported(t *testing.T) {
 	wt.Expect("Match str", StringMatch("hi there", false)) // Allow many matches
 	wt.Expect("Match bytes", BytesMatch([]byte("julian776"))).WithMax(3)
 	wt.Expect("Must not match", StringMatch("hello", true)).WithMax(0)
+	wt.Expect("Min 4 matches", StringMatch("super dog", false)).WithMin(4)
 	wt.Expect("everything utf8", ValidUTF8()).Every()
 
 	wt.Write([]byte("hi there"))
@@ -180,6 +181,11 @@ func TestWTester_ValidateMaxExpectationsAreReported(t *testing.T) {
 	wt.Write([]byte("hi there"))
 	wt.Write([]byte("hi there"))
 	wt.Write([]byte("hi there"))
+
+	wt.Write([]byte("super dog"))
+	wt.Write([]byte("super dog"))
+	wt.Write([]byte("super dog"))
+	wt.Write([]byte("super dog"))
 
 	wt.Write([]byte("julian776"))
 	wt.Write([]byte("julian776"))
