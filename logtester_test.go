@@ -17,12 +17,14 @@ const (
 func Example() {
 	wt := NewWTester(io.Discard)
 
-	wt.Expect("Match hello world", RegexMatch(`hello world`)).WithMax(1).WithMin(1)
+	wt.Expect("All logs contain service name lowercase", RegexMatch(`service:[a-z1-9]+`)).Every()
+	wt.Expect("Only one error", StringMatch("error", false)).WithMax(1)
 	wt.Expect("Valid UTF-8", ValidUTF8()).Every()
 
 	log.SetOutput(wt)
 
-	log.Printf("hello world")
+	log.Printf("missing record_id %s:%s", "service", "payments")
+	log.Printf("error validating RRN %s %s:%s", "1454564", "service", "payments")
 
 	err := wt.Validate()
 	if err != nil {
@@ -32,12 +34,13 @@ func Example() {
 
 	wt.Reset()
 
-	wt.Expect("Match server started", StringMatch("server started\n", true)).WithMax(1).WithMin(1)
+	wt.Expect("Exactly one req retry", StringMatch("retrying req", false)).WithMax(1).WithMin(1)
 	wt.Expect("Valid UTF-8", ValidUTF8()).Every()
 
 	log.SetOutput(wt)
 
-	log.Printf("hello world")
+	log.Printf("retrying req 144414")
+	log.Printf("retrying req 144414")
 
 	err = wt.Validate()
 	if err != nil {
@@ -72,9 +75,9 @@ func Example() {
 	}
 
 	// Output:
-	// Wt 2: validation "Match server started"
+	// Wt 2: validation "Exactly one req retry"
 	// Fails On:
-	// expected at least 1 matches, got 0
+	// expected at most 1 matches, got 2
 	// Wt 3: validation "Must not contain errors"
 	// Fails On:
 	// expected at most 0 matches, got 1
