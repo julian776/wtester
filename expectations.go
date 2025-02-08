@@ -8,7 +8,7 @@ import (
 	"unicode/utf8"
 )
 
-type ExpectFunc func(expected []byte) bool
+type ExpectFunc func(actual []byte) bool
 
 // StringMatch returns an ExpectFunc that checks if the actual byte slice matches
 // the expected string. If exact is true, it checks for an exact match. Otherwise,
