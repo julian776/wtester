@@ -42,9 +42,7 @@ func SuffixMatch(expected string) ExpectFunc {
 // ValidUTF8 returns an ExpectFunc that checks if the actual byte slice
 // is valid UTF-8.
 func ValidUTF8() ExpectFunc {
-	return func(actual []byte) bool {
-		return utf8.Valid(actual)
-	}
+	return utf8.Valid
 }
 
 // RegexMatch returns an ExpectFunc that checks for matches against the
