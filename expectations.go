@@ -2,6 +2,7 @@ package wtester
 
 import (
 	"bytes"
+	"encoding/json"
 	"regexp"
 	"slices"
 	"strings"
@@ -67,6 +68,58 @@ func BytesMatch(expected []byte) ExpectFunc {
 func RunesMatch(expected []rune) ExpectFunc {
 	return func(actual []byte) bool {
 		return slices.Equal(bytes.Runes(actual), expected)
+	}
+}
+
+// ObfuscatedMatch returns an ExpectFunc that checks if the provided fields
+// in a JSON are obfuscated with the provided character and percentage.
+//
+// Any value that corresponds to a field in the fields slice is expected to
+// be a string. If it is not a string, the function returns false.
+// An empty value for any field will return false.
+//
+// Panics if the percentageObfuscated is not between 0 and 1 or if
+// the fields slice is empty.
+func ObfuscatedMatch(
+	obfuscateChar string,
+	percentageObfuscated float64,
+	fields ...string,
+) ExpectFunc {
+	if len(fields) == 0 {
+		panic("fields slice cannot be empty")
+	}
+
+	if percentageObfuscated < 0 || percentageObfuscated > 1 {
+		panic("percentageObfuscated must be between 0 and 1")
+	}
+
+	return func(actual []byte) bool {
+		var m map[string]interface{}
+		err := json.Unmarshal(actual, &m)
+		if err != nil {
+			return false
+		}
+
+		for k, v := range m {
+			if !slices.Contains(fields, k) {
+				continue
+			}
+
+			str, ok := v.(string)
+			if !ok {
+				return false
+			}
+
+			obfuscated := strings.Count(str, obfuscateChar)
+			total := len(str)
+			percent := float64(obfuscated) / float64(total)
+
+			if percent >= percentageObfuscated {
+				return true
+			}
+		}
+
+		return false
 	}
 }
 
