@@ -92,9 +92,7 @@ func TestWTester_WritesToUnderlyingWriterAreValid(t *testing.T) {
 	wt.expects = map[string]*Expect{
 		"test": {
 			title: "test",
-			f: func(p []byte) bool {
-				return bytes.Contains(p, []byte("hello"))
-			},
+			exp:   StringMatch("here to satisfy the test", false),
 		},
 	}
 

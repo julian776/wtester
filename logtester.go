@@ -46,7 +46,7 @@ func (l *WTester) AppendWriter(w io.Writer) {
 // the expectations set on the WTester.
 func (l *WTester) Write(p []byte) (n int, err error) {
 	for _, e := range l.expects {
-		ok := e.f(p)
+		ok := e.exp.Expect(p)
 		if ok {
 			e.matched()
 			continue
@@ -78,11 +78,19 @@ func (l *WTester) Close() error {
 // is used to identify the expectation and the f parameter
 // is a function that takes a byte slice and returns a boolean
 // indicating if the expectation is met.
-func (l *WTester) Expect(title string, f ExpectFunc) *Expect {
-	e := NewExpect(title, f)
+func (l *WTester) Expect(title string, exp Expecter) *Expect {
+	e := NewExpect(title, exp)
 	l.expects[title] = e
 
 	return e
+}
+
+// ExpectFunc sets a function expectation on the WTester.
+// The title is used to identify the expectation and the f
+// parameter is a function that takes a byte slice and returns
+// a boolean indicating if the expectation is met.
+func (l *WTester) ExpectFunc(title string, f func(actual []byte) bool) *Expect {
+	return l.Expect(title, ExpectFunc(f))
 }
 
 // Reset resets the WTester by clearing all expectations

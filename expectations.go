@@ -9,7 +9,15 @@ import (
 	"unicode/utf8"
 )
 
+type Expecter interface {
+	Expect(actual []byte) bool
+}
+
 type ExpectFunc func(actual []byte) bool
+
+func (f ExpectFunc) Expect(actual []byte) bool {
+	return f(actual)
+}
 
 // StringMatch returns an ExpectFunc that checks if the actual byte slice matches
 // the expected string. If exact is true, it checks for an exact match. Otherwise,

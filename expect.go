@@ -4,7 +4,7 @@ import "sync"
 
 type Expect struct {
 	title   string
-	f       ExpectFunc
+	exp     Expecter
 	every   bool
 	min     int
 	max     int
@@ -13,10 +13,10 @@ type Expect struct {
 	mu      sync.Mutex // guards matches
 }
 
-func NewExpect(title string, f ExpectFunc) *Expect {
+func NewExpect(title string, exp Expecter) *Expect {
 	return &Expect{
 		title: title,
-		f:     f,
+		exp:   exp,
 		min:   1,
 	}
 }
