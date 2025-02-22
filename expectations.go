@@ -2,7 +2,6 @@ package wtester
 
 import (
 	"bytes"
-	"encoding/json"
 	"regexp"
 	"slices"
 	"strings"
@@ -87,7 +86,13 @@ func RunesMatch(expected []rune) ExpectFunc {
 	}
 }
 
-// ObfuscatedMatch returns an ExpectFunc that checks if the provided fields
+type obfuscatedMatch struct {
+	obfuscateChar        string
+	percentageObfuscated float64
+	fields               []string
+}
+
+// ObfuscatedMatch returns an Expecter that checks if the provided fields
 // in a JSON are obfuscated with the provided character and percentage.
 //
 // Any value that corresponds to a field in the fields slice is expected to
@@ -100,43 +105,50 @@ func ObfuscatedMatch(
 	obfuscateChar string,
 	percentageObfuscated float64,
 	fields ...string,
-) ExpectFunc {
-	if len(fields) == 0 {
-		panic("fields slice cannot be empty")
-	}
-
+) Expecter {
 	if percentageObfuscated < 0 || percentageObfuscated > 1 {
 		panic("percentageObfuscated must be between 0 and 1")
 	}
 
-	return func(actual []byte) bool {
-		var m map[string]interface{}
-		err := json.Unmarshal(actual, &m)
-		if err != nil {
+	if len(fields) == 0 {
+		panic("fields cannot be empty")
+	}
+
+	return &obfuscatedMatch{
+		obfuscateChar:        obfuscateChar,
+		percentageObfuscated: percentageObfuscated,
+		fields:               fields,
+	}
+}
+
+// Only for satisfy the Expecter interface.
+func (om *obfuscatedMatch) Expect(actual []byte) bool {
+	return false
+}
+
+// ExpectJSON checks if the provided fields in a JSON are obfuscated with the
+// provided character and percentage.
+func (om *obfuscatedMatch) ExpectJSON(m map[string]any) bool {
+	for k, v := range m {
+		if !slices.Contains(om.fields, k) {
+			continue
+		}
+
+		str, ok := v.(string)
+		if !ok {
 			return false
 		}
 
-		for k, v := range m {
-			if !slices.Contains(fields, k) {
-				continue
-			}
+		obfuscated := strings.Count(str, om.obfuscateChar)
+		total := len(str)
+		percent := float64(obfuscated) / float64(total)
 
-			str, ok := v.(string)
-			if !ok {
-				return false
-			}
-
-			obfuscated := strings.Count(str, obfuscateChar)
-			total := len(str)
-			percent := float64(obfuscated) / float64(total)
-
-			if percent >= percentageObfuscated {
-				return true
-			}
+		if percent >= om.percentageObfuscated {
+			return true
 		}
-
-		return false
 	}
+
+	return false
 }
 
 // Not returns an ExpectFunc that negates the result of the provided ExpectFunc.

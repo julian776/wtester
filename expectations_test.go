@@ -2,28 +2,34 @@ package wtester
 
 import (
 	"fmt"
+	"io"
 	"testing"
 )
 
 func ExampleObfuscatedMatch() {
-	// Create a match function that checks if the "credit_card" field is obfuscated.
+	wt := NewWTester(io.Discard)
+
+	// Create a new Expect that checks if the "credit_card" field is obfuscated.
 	// Percentage obfuscated is set to 0.4, meaning at least 40%
 	// The percentage could be calculated by counting the number of obfuscateChar
 	// in the string divided by the total number of characters in the string.
 	// For example, "1234-****-****-1234" has 8 obfuscated characters out of
 	// 19 total characters (The '-' character is not obfuscated).
 	// (8 / 19) = 0.42105263
-	matchFunc := ObfuscatedMatch("*", 0.4, "credit_card")
+	wt.Expect("Credit card is obfuscated", ObfuscatedMatch("*", 0.4, "credit_card")).Every()
 
 	// Test the match function against a JSON object.
 	input := []byte(`{"credit_card": "1234-****-****-1234"}`)
-	if matchFunc(input) {
-		fmt.Println("The credit card field is obfuscated.")
+
+	wt.Write(input)
+	err := wt.Validate()
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
 	} else {
-		fmt.Println("The credit card field is not obfuscated.")
+		fmt.Println("The credit card field is obfuscated correctly. No errors.")
 	}
 
-	// Output: The credit card field is obfuscated.
+	// Output: The credit card field is obfuscated correctly. No errors.
 }
 
 func TestObfuscatedMatch(t *testing.T) {
@@ -94,6 +100,8 @@ func TestObfuscatedMatch(t *testing.T) {
 	}
 
 	for name, tt := range tests {
+		wt := NewWTester(io.Discard)
+
 		t.Run(name, func(t *testing.T) {
 			if tt.panic {
 				defer func() {
@@ -103,9 +111,18 @@ func TestObfuscatedMatch(t *testing.T) {
 				}()
 			}
 
-			matchFunc := ObfuscatedMatch(tt.obfuscateChar, tt.percentageObfuscated, tt.fields...)
-			if got := matchFunc(tt.input); got != tt.expected {
-				t.Errorf("ObfuscatedMatch() = %v, want %v", got, tt.expected)
+			wt.Expect(name, ObfuscatedMatch(tt.obfuscateChar, tt.percentageObfuscated, tt.fields...)).Every()
+			wt.Write(tt.input)
+			err := wt.Validate()
+			// If expected is true, should match. Meaning no error.
+			if tt.expected {
+				if err != nil {
+					t.Errorf("expected no error, got %v", err)
+				}
+			} else {
+				if err == nil {
+					t.Errorf("expected an error, got nil")
+				}
 			}
 		})
 	}
