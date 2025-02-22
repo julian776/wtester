@@ -1,6 +1,7 @@
 package wtester
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"sync"
@@ -45,8 +46,28 @@ func (l *WTester) AppendWriter(w io.Writer) {
 // [io.Writer] and checks if the byte slice matches any of
 // the expectations set on the WTester.
 func (l *WTester) Write(p []byte) (n int, err error) {
+	// Only unmarshal JSON once. And only if there are JSON expectations.
+	var m map[string]any
+
 	for _, e := range l.expects {
-		ok := e.exp.Expect(p)
+		var ok bool
+		switch exp := e.exp.(type) {
+		case JSONExpecter:
+			if m == nil {
+				if err := json.Unmarshal(p, &m); err != nil {
+					l.appendError(e.title, ErrorRecord{
+						Bytes: p,
+						Err:   fmt.Errorf("failed to unmarshal JSON: %s", err.Error()),
+					})
+					continue
+				}
+			}
+
+			ok = exp.ExpectJSON(m)
+		default:
+			ok = exp.Expect(p)
+		}
+
 		if ok {
 			e.matched()
 			continue

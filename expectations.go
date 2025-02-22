@@ -13,6 +13,14 @@ type Expecter interface {
 	Expect(actual []byte) bool
 }
 
+// JSONExpecter is an interface for JSON expectations.
+// If implemented, the expectation will be unmarshaled into a map
+// before being passed to ExpectJSON instead of calling the Expect method.
+// Improves performance by unmarshaling the JSON data only once per Write call.
+type JSONExpecter interface {
+	ExpectJSON(actual map[string]any) bool
+}
+
 type ExpectFunc func(actual []byte) bool
 
 func (f ExpectFunc) Expect(actual []byte) bool {
