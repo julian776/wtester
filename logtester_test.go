@@ -15,6 +15,8 @@ const (
 )
 
 func Example() {
+	// Is recommended to output to os.Stdout to see the logs
+	// in the test output. (In tests logs are displayed only if the test fails)
 	wt := NewWTester(io.Discard)
 
 	wt.Expect("All logs contain service name lowercase", RegexMatch(`service:[a-z1-9]+`)).Every()
