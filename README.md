@@ -1,6 +1,8 @@
 # WTester | Logtester | Log Tester
 
-`wtester` is a Go package designed for testing log outputs or any other byte stream. It allows you to define expectations on the output and validate whether those expectations are met. This is particularly useful for testing logs and ensuring that the expected log messages are produced.
+`wtester` is a Go package designed for testing log outputs or any other byte stream. It allows you to define expectations on the output and validate whether those expectations are met. This package focuses on governance and compliance with the structure of the logs, ensuring that they adhere to predefined formats and standards.
+
+It is not intended for testing business logic or application logic. It is designed to be used in tests, not in production code. The validations are an overhead that is not needed in production.
 
 ## Installation
 
